@@ -16,8 +16,8 @@ const GET_LONG_TAILS = gql`
 
 export default function({ jsonData }) {
     const {data, loading} = useQuery(GET_LONG_TAILS);
-    const {query} = useRouter();
-    if(loading) {
+    const {query, isFallback} = useRouter();
+    if(loading || isFallback) {
         return (
             <MainContainer>
                 <h1>Loading...</h1>
@@ -35,9 +35,16 @@ export default function({ jsonData }) {
     );
 };
 
-export async function getStaticProps({ params }) {
-    const jsonData = await getData();
-    return { props: { jsonData } };
+export async function getStaticProps() {
+    let jsonData;
+
+    try {
+        jsonData = await getData()
+    } catch(err) {
+        console.error(err)
+    }
+
+    return { props: { jsonData: jsonData || null } };
 };
 
 export async function getStaticPaths() {
